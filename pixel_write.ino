@@ -272,6 +272,7 @@ pt_coord line_Zoctant_switchfrom(uint8_t oct, ln_coord a) {
 }
 
 void graphics_draw_square() {
+    //temporary change
 }
 
 void loop() {
