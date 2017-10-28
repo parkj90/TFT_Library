@@ -22,9 +22,12 @@ struct color_code {
   uint8_t b;
 };
 
+  color_code white = {63, 63, 63};
   color_code black = {0, 0, 0};
-  color_code blue = {0, 0, 63};
+  color_code red   = {63, 0, 0};
   color_code green = {0, 63, 0};
+  color_code blue  = {0, 0, 63};
+
 
 struct pt_coord {
   uint16_t x;
@@ -325,8 +328,15 @@ pt_coord line_Zoctant_switchfrom(uint8_t oct, ln_coord a) {
   return pt_a;
 }
 
-void graphics_draw_square() {
-    //temporary change
+void graphics_draw_rect(pt_coord a, uint16_t l, uint16_t w, color_code c) {
+    for (uint16_t j = 0; j < l; j++) {
+      for (uint16_t i = 0; i < w; i++) {
+        lcd_set_pixel(a, c);
+        a.x++;
+      }
+      a.x = a.x - w;
+      a.y++;
+    }
 }
 
 void loop() {
@@ -346,8 +356,10 @@ void loop() {
 */  
 
 
-  pt_coord b = {10, 10};
+  pt_coord b = {30, 10};
   pt_coord a = {10, 100};
+
+  graphics_draw_rect(a, 30, 30, red);
 
   graphics_draw_line(a, b, green);
 }
