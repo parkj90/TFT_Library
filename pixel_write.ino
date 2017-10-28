@@ -94,15 +94,15 @@ void lcd_clear() {
   lcd_write_cmd(0x2A);
   lcd_write_data(0);
   lcd_write_data(0);
-  lcd_write_data(MAXWIDTH >> 8);
-  lcd_write_data(MAXWIDTH & 0xFF);
+  lcd_write_data((MAXWIDTH - 1) >> 8);
+  lcd_write_data((MAXWIDTH - 1) & 0xFF);
 
   //paset
   lcd_write_cmd(0x2B);
   lcd_write_data(0);
   lcd_write_data(0);
-  lcd_write_data(MAXLENGTH >> 8);
-  lcd_write_data(MAXLENGTH & 0xFF);
+  lcd_write_data((MAXLENGTH - 1) >> 8);
+  lcd_write_data((MAXLENGTH - 1) & 0xFF);
 
   //memory write
   lcd_write_cmd(0x2C);
@@ -150,11 +150,14 @@ void lcd_set_pixel(pt_coord p, color_code c) {
   lcd_write_data(c.r << 2);
 }
 
-void graphics_draw_line(uint8_t oct, pt_coord a_pt, pt_coord b_pt, color_code c) {
-  //determine octant FIXME add later
-
+void graphics_draw_line(pt_coord a_pt, pt_coord b_pt, color_code c) {
   ln_coord a = {static_cast<int>(a_pt.x), static_cast<int>(a_pt.y)};
   ln_coord b = {static_cast<int>(b_pt.x), static_cast<int>(b_pt.y)};
+
+  //determine octant
+  uint8_t oct = line_find_octant(&a, &b);
+  
+  
   //convert to zero octant via pointers
   line_Zoctant_convert(oct, &a, &b);
 
@@ -174,6 +177,57 @@ void graphics_draw_line(uint8_t oct, pt_coord a_pt, pt_coord b_pt, color_code c)
       err--;
     }
   }  
+}
+
+uint8_t line_find_octant(ln_coord *a, ln_coord *b) {
+  float slp;
+  
+  if (b->x - a->x) 
+    slp = static_cast<float>(b->y - a->y) / static_cast<float>(b->x - a->x);
+  else {
+    if (b->y - a->y > 0) {
+      return 1; 
+    }
+    else
+      return 6;
+  }
+  
+  if (a->x < b->x) {
+    if  (a->y < b->y) {
+      if (slp < 1) {
+        return 0;
+      }
+      else {
+        return 1;
+      }
+    }
+    else {
+      if (slp > -1) {
+        return 7;
+      }
+      else {
+        return 6;
+      }
+    }
+  }
+  else {
+    if  (a->y < b->y) {
+      if (slp > -1) {
+        return 3;
+      }
+      else {
+        return 2;
+      }
+    }
+    else {
+      if (slp < 1) {
+        return 4;
+      }
+      else {
+        return 5;
+      }
+    }
+  }
 }
 
 void line_Zoctant_convert(uint8_t oct, ln_coord *a, ln_coord *b) {
@@ -292,8 +346,8 @@ void loop() {
 */  
 
 
-  pt_coord a = {240, 0};
-  pt_coord b = {0, 320};
+  pt_coord b = {10, 10};
+  pt_coord a = {10, 100};
 
-  graphics_draw_line(2, a, b, green);
+  graphics_draw_line(a, b, green);
 }
