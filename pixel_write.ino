@@ -40,6 +40,7 @@ struct ln_coord {
 };
 
 void setup() {
+
   /*
   Serial.begin(9600);
   while (!Serial) {
@@ -339,6 +340,76 @@ void graphics_draw_rect(pt_coord a, uint16_t l, uint16_t w, color_code c) {
     }
 }
 
+void graphics_draw_circ(pt_coord m, uint16_t r, color_code c) {
+  pt_coord a;
+  pt_coord b;
+  int16_t x = r - 1;
+  int16_t y = 0;  
+  int16_t dx = 1;
+  int16_t dy = 1;
+  int16_t err = dx - (r << 1);
+
+  while (x >= y) {
+    //0 and 3 octants
+    if (static_cast<int16_t>(m.x) - x < 0) {
+      a.x = 0;
+    }
+    else {
+      a.x = static_cast<int16_t>(m.x) - x;
+    }
+    a.y = static_cast<int16_t>(m.y) + y;
+    b.x = static_cast<int16_t>(m.x) + x;
+    b.y = static_cast<int16_t>(m.y) + y;
+    graphics_draw_line(a, b, c);
+
+    //4 and 7 octants
+    if (static_cast<int16_t>(m.y) - y < 0) {
+      a.y = 0;
+      b.y = 0;
+    }
+    else {
+      a.y = static_cast<int16_t>(m.y) - y;
+      b.y = static_cast<int16_t>(m.y) - y;
+    }
+    graphics_draw_line(a, b, c);
+
+    //1 and 2 octants
+    if (static_cast<int16_t>(m.x) - y < 0)  {
+      a.x = 0;
+    }
+    else {
+      a.x = static_cast<int16_t>(m.x) - y;
+    }
+    a.y = static_cast<int16_t>(m.y) + x;
+    b.x = static_cast<int16_t>(m.x) + y;
+    b.y = static_cast<int16_t>(m.y) + x;
+    graphics_draw_line(a, b, c);
+
+    // 5 and 6 octants
+    if (static_cast<int16_t>(m.y) - x < 0) {
+      a.y = 0;
+      b.y = 0;
+    }
+    else {
+      a.y = static_cast<int16_t>(m.y) - x;
+      b.y = static_cast<int16_t>(m.y) - x;
+    }
+    graphics_draw_line(a, b, c);
+
+    if (err <= 0) {
+      y++;
+      err += dy;
+      dy +=2;
+    }
+    if (err > 0) {
+      x--;
+      dx += 2;
+      err += (-r << 1) + dx;
+    }
+  }
+  
+}
+
 void loop() {
 
 /*
@@ -356,10 +427,12 @@ void loop() {
 */  
 
 
-  pt_coord b = {30, 10};
-  pt_coord a = {10, 100};
+  pt_coord b = {60, 30};
+  pt_coord a = {10, 10};
 
   graphics_draw_rect(a, 30, 30, red);
 
-  graphics_draw_line(a, b, green);
+  //graphics_draw_line(a, b, green);
+
+  graphics_draw_circ(b, 120, green);
 }
