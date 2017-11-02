@@ -1,5 +1,5 @@
 #include <SPI.h>
-#include <Blokus_font.h>
+#include <homespun_font.h>
 
 #define TEXT_HEIGHT 8
 #define TEXT_WIDTH  6
@@ -425,7 +425,7 @@ void graphics_draw_circ(pt_coord m, uint16_t r, color_code c) {
   
 }
 
-void graphics_write_letter(char t, pt_coord a, color_code c) {
+void graphics_write_text(char t, pt_coord a, color_code c) {
   t = t & 0x7F;
   if (t < ' ')
     t = 0;
@@ -443,6 +443,22 @@ void graphics_write_letter(char t, pt_coord a, color_code c) {
     }
     a.y++;
     a.x -= TEXT_HEIGHT;
+  }
+}
+
+void text_textbox(char *str, size_t str_length, pt_coord a, pt_coord b, color_code c) {
+  uint16_t box_h = b.x - a.x;
+  uint16_t box_w = b.y - a.y;
+  for (uint16_t i = 0; i < str_length; i++) {
+    graphics_write_text(str[i], a, c);
+    a.y += TEXT_WIDTH;
+    if (a.y >= b.y) {
+      a.y -= box_w;
+      a.x += TEXT_HEIGHT;
+    }
+    if (a.x >= b.x) {
+      return;
+    }
   }
 }
 
@@ -467,6 +483,10 @@ void loop() {
   pt_coord c = {100,10};
   pt_coord d = {120,10};
   pt_coord e = {120,300};
+  pt_coord box_a = {50, 10};
+  pt_coord box_b = {100, 150};
+
+  char test_str[] = "This is just a test string to see if the textbox drawing function is properly functioning.";
 
   //graphics_draw_line(a, b, green);
 
@@ -481,7 +501,7 @@ void loop() {
 
   char test_ch = ' ';
   for (int i = 0; i < 96; i++) {
-    graphics_write_letter(test_ch, a, white);
+    graphics_write_text(test_ch, a, white);
     a.y += TEXT_WIDTH;
     test_ch++;
     if (a.y > MAXLENGTH - (10 + TEXT_WIDTH)) {
@@ -490,6 +510,8 @@ void loop() {
     }
     
   }
+
+  text_textbox(test_str, sizeof(test_str), box_a, box_b, white);
 
   delay(10000);
 
