@@ -1,4 +1,9 @@
 #include <SPI.h>
+#include <Blokus_font.h>
+
+#define TEXT_HEIGHT 8
+#define TEXT_WIDTH  6
+
 //data/command pin
 const uint8_t DCpin = 3;
 //chip select pin
@@ -329,7 +334,7 @@ pt_coord line_Zoctant_switchfrom(uint8_t oct, ln_coord a) {
   return pt_a;
 }
 
-void graphics_draw_rect(pt_coord a, uint16_t l, uint16_t w, color_code c) {
+void graphics_draw_rect(pt_coord a, uint16_t w, uint16_t l, color_code c) {
     for (uint16_t j = 0; j < l; j++) {
       for (uint16_t i = 0; i < w; i++) {
         lcd_set_pixel(a, c);
@@ -358,7 +363,12 @@ void graphics_draw_circ(pt_coord m, uint16_t r, color_code c) {
       a.x = static_cast<int16_t>(m.x) - x;
     }
     a.y = static_cast<int16_t>(m.y) + y;
-    b.x = static_cast<int16_t>(m.x) + x;
+    if (static_cast<int16_t>(m.x) + x >= MAXWIDTH) {
+      b.x = MAXWIDTH - 1;
+    }
+    else {
+      b.x = static_cast<int16_t>(m.x) + x;
+    }
     b.y = static_cast<int16_t>(m.y) + y;
     graphics_draw_line(a, b, c);
 
@@ -381,7 +391,12 @@ void graphics_draw_circ(pt_coord m, uint16_t r, color_code c) {
       a.x = static_cast<int16_t>(m.x) - y;
     }
     a.y = static_cast<int16_t>(m.y) + x;
-    b.x = static_cast<int16_t>(m.x) + y;
+    if (static_cast<int16_t>(m.x) + y >= MAXWIDTH) {
+      b.x = MAXWIDTH - 1;
+    }
+    else {
+      b.x = static_cast<int16_t>(m.x) + y;
+    }
     b.y = static_cast<int16_t>(m.y) + x;
     graphics_draw_line(a, b, c);
 
@@ -410,29 +425,74 @@ void graphics_draw_circ(pt_coord m, uint16_t r, color_code c) {
   
 }
 
+void graphics_write_letter(char t, pt_coord a, color_code c) {
+  t = t & 0x7F;
+  if (t < ' ')
+    t = 0;
+  else
+    t -= ' ';
+
+  const uint8_t *ch = font[t];
+  
+  for (uint8_t j = 0; j < TEXT_WIDTH; j++) {
+    Serial.println(ch[j], HEX);
+    for (uint8_t i = 0; i < TEXT_HEIGHT; i++) {
+      if (ch[j] & (1 << i))
+        lcd_set_pixel(a, c);
+      a.x++;
+    }
+    a.y++;
+    a.x -= TEXT_HEIGHT;
+  }
+}
+
+
 void loop() {
 
 /*
   pt_coord pixel;
-` static color_code gradient = {63, 0, 31};
+  static color_code gradient = {63, 0, 31};
 
   for (int j = 0; j < MAXLENGTH; j++) {
     pixel.y = j;
     for (int i = 0; i < MAXWIDTH; i++) {
       pixel.x = i;
-      lcd_set_pixel(pixel, black);
+      lcd_set_pixel(pixel, gradient);
     }
-    //color_change_gradient(&gradient);
+    color_change_gradient(&gradient);
   }
-*/  
-
-
-  pt_coord b = {60, 30};
+*/
   pt_coord a = {10, 10};
-
-  graphics_draw_rect(a, 30, 30, red);
+  pt_coord b = {200, 280};
+  pt_coord c = {100,10};
+  pt_coord d = {120,10};
+  pt_coord e = {120,300};
 
   //graphics_draw_line(a, b, green);
 
-  graphics_draw_circ(b, 120, green);
+  graphics_draw_circ(b, 60, green);
+
+  graphics_draw_rect(c, 20, 40, red);
+
+  for (int i = 0; i < 10; i++) {
+    graphics_draw_line(d, e, blue);
+    e.x += 10;
+  }
+
+  char test_ch = ' ';
+  for (int i = 0; i < 96; i++) {
+    graphics_write_letter(test_ch, a, white);
+    a.y += TEXT_WIDTH;
+    test_ch++;
+    if (a.y > MAXLENGTH - (10 + TEXT_WIDTH)) {
+      a.y = 10;
+      a.x += TEXT_HEIGHT;
+    }
+    
+  }
+
+  delay(10000);
+
+  
+
 }
