@@ -2,7 +2,7 @@
 #include <homespun_font.h>
 
 #define TEXT_HEIGHT 8
-#define TEXT_WIDTH  6
+#define TEXT_WIDTH  7
 
 //data/command pin
 const uint8_t DCpin = 3;
@@ -425,43 +425,53 @@ void graphics_draw_circ(pt_coord m, uint16_t r, color_code c) {
   
 }
 
-void graphics_write_text(char t, pt_coord a, color_code c) {
-  t = t & 0x7F;
-  if (t < ' ')
-    t = 0;
-  else
-    t -= ' ';
-
-  const uint8_t *ch = font[t];
-  
-  for (uint8_t j = 0; j < TEXT_WIDTH; j++) {
-    Serial.println(ch[j], HEX);
-    for (uint8_t i = 0; i < TEXT_HEIGHT; i++) {
-      if (ch[j] & (1 << i))
-        lcd_set_pixel(a, c);
-      a.x++;
-    }
-    a.y++;
-    a.x -= TEXT_HEIGHT;
-  }
-}
-
-void text_textbox(char *str, size_t str_length, pt_coord a, pt_coord b, color_code c) {
-  uint16_t box_h = b.x - a.x;
-  uint16_t box_w = b.y - a.y;
-  for (uint16_t i = 0; i < str_length; i++) {
-    graphics_write_text(str[i], a, c);
-    a.y += TEXT_WIDTH;
+//writes text in a "box" who's top left corner is pt_coord a
+//and bottom right corner is pt_coord b
+void graphics_write_text(char *x, pt_coord a, pt_coord b, color_code c) {
+  uint16_t start_pos = a.x;
+  uint16_t str_ind = 0;
+  char t;
+  while (x[i] != '\0') {
+    //check if end of box is reached
     if (a.y >= b.y) {
-      a.y -= box_w;
+      if (a.x >= b.x) {
+        return;
+      }
       a.x += TEXT_HEIGHT;
+      a.y = start_pos;
     }
-    if (a.x >= b.x) {
-      return;
+    
+    //line feed
+    if (x[i] == '\n') {
+      a.x += TEXT_HEIGHT;
+      a.y = start_pos;
+      str_ind++;
+      continue;
     }
+    
+    //copy character from string and change to font index
+    t = x[i] & 0x7F;
+    if (t < ' ')
+      t = 0;
+    else
+      t -= ' ';
+
+    //copy font bitmap
+    const uint8_t *ch = font[t];
+
+    //set pixels while incremeing through pixels
+    for (uint8_t j = 0; j < TEXT_WIDTH; j++) {
+      for (uint8_t i = 0; i < TEXT_HEIGHT; i++) {
+        if (ch[j] & (1 << i))
+          lcd_set_pixel(a, c);
+        a.x++;
+      }
+      a.y++;
+      a.x -= TEXT_HEIGHT;
+    }
+    str_ind++;
   }
 }
-
 
 void loop() {
 
