@@ -496,7 +496,7 @@ void loop() {
   pt_coord box_a = {50, 10};
   pt_coord box_b = {100, 150};
 
-  char test_str[] = "This is just a test string to see if the textbox drawing function is properly functioning.";
+  char test_str[] = "This is just a test string to see if the textbox\n drawing function is properly\0 functioning.";
 
   //graphics_draw_line(a, b, green);
 
@@ -508,20 +508,7 @@ void loop() {
     graphics_draw_line(d, e, blue);
     e.x += 10;
   }
-
-/*
-  char test_ch = ' ';
-  for (int i = 0; i < 96; i++) {
-    graphics_write_text(test_ch, a, b, white);
-    a.y += TEXT_WIDTH;
-    test_ch++;
-    if (a.y > MAXLENGTH - (10 + TEXT_WIDTH)) {
-      a.y = 10;
-      a.x += TEXT_HEIGHT;
-    }
-    
-  }
-*/
+  
   graphics_write_text(test_str,box_a, box_b, white);
 
   delay(10000);
