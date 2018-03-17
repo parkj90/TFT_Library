@@ -428,10 +428,10 @@ void graphics_draw_circ(pt_coord m, uint16_t r, color_code c) {
 //writes text in a "box" who's top left corner is pt_coord a
 //and bottom right corner is pt_coord b
 void graphics_write_text(char *x, pt_coord a, pt_coord b, color_code c) {
-  uint16_t start_pos = a.x;
+  uint16_t start_pos = a.y;
   uint16_t str_ind = 0;
   char t;
-  while (x[i] != '\0') {
+  while (x[str_ind] != '\0') {
     //check if end of box is reached
     if (a.y >= b.y) {
       if (a.x >= b.x) {
@@ -442,7 +442,7 @@ void graphics_write_text(char *x, pt_coord a, pt_coord b, color_code c) {
     }
     
     //line feed
-    if (x[i] == '\n') {
+    if (x[str_ind] == '\n') {
       a.x += TEXT_HEIGHT;
       a.y = start_pos;
       str_ind++;
@@ -450,7 +450,7 @@ void graphics_write_text(char *x, pt_coord a, pt_coord b, color_code c) {
     }
     
     //copy character from string and change to font index
-    t = x[i] & 0x7F;
+    t = x[str_ind] & 0x7F;
     if (t < ' ')
       t = 0;
     else
@@ -459,7 +459,7 @@ void graphics_write_text(char *x, pt_coord a, pt_coord b, color_code c) {
     //copy font bitmap
     const uint8_t *ch = font[t];
 
-    //set pixels while incremeing through pixels
+    //set pixels while incrementing through pixels
     for (uint8_t j = 0; j < TEXT_WIDTH; j++) {
       for (uint8_t i = 0; i < TEXT_HEIGHT; i++) {
         if (ch[j] & (1 << i))
@@ -509,9 +509,10 @@ void loop() {
     e.x += 10;
   }
 
+/*
   char test_ch = ' ';
   for (int i = 0; i < 96; i++) {
-    graphics_write_text(test_ch, a, white);
+    graphics_write_text(test_ch, a, b, white);
     a.y += TEXT_WIDTH;
     test_ch++;
     if (a.y > MAXLENGTH - (10 + TEXT_WIDTH)) {
@@ -520,8 +521,8 @@ void loop() {
     }
     
   }
-
-  text_textbox(test_str, sizeof(test_str), box_a, box_b, white);
+*/
+  graphics_write_text(test_str,box_a, box_b, white);
 
   delay(10000);
 
