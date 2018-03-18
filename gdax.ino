@@ -25,7 +25,7 @@ void loop() {
   pt_coord box_a = {50, 10};
   pt_coord box_b = {100, 150};
 
-  char test_str[] = "This is just a test string to see if the textbox\n drawing function is properly\0 functioning.";
+  char test_str[] = "BTC/ETH\nprice\ntime\ndate";
 
   //graphics_draw_line(a, b, green);
 

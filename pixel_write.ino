@@ -1,5 +1,5 @@
 #include <SPI.h>
-#include <homespun_font.h>
+#include "fonts/homespun_font.h"
 
 #define TEXT_HEIGHT 8
 #define TEXT_WIDTH  7
