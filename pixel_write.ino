@@ -45,18 +45,6 @@ struct ln_coord {
 };
 
 void setup_PixWrt() {
-
-  /*
-  Serial.begin(9600);
-  while (!Serial) {
-    ;
-  }
-  Serial.println("Serial Connection Established.");
-  Serial.println("Waiting for input...");
-  Serial.read();
-  while(!Serial.available());
-  */
-  
   pinMode(DCpin, OUTPUT);
   pinMode(SSpin, OUTPUT);
   pinMode(RFpin, OUTPUT);
@@ -427,7 +415,7 @@ void graphics_draw_circ(pt_coord m, uint16_t r, color_code c) {
 
 //writes text in a "box" who's top left corner is pt_coord a
 //and bottom right corner is pt_coord b
-void graphics_write_text(char *x, pt_coord a, pt_coord b, color_code c) {
+void graphics_write_text(char *x, pt_coord a, pt_coord b, color_code c, color_code fill) {
   uint16_t start_pos = a.y;
   uint16_t str_ind = 0;
   char t;
@@ -464,6 +452,8 @@ void graphics_write_text(char *x, pt_coord a, pt_coord b, color_code c) {
       for (uint8_t i = 0; i < TEXT_HEIGHT; i++) {
         if (ch[j] & (1 << i))
           lcd_set_pixel(a, c);
+        else
+          lcd_set_pixel(a, fill);
         a.x++;
       }
       a.y++;
