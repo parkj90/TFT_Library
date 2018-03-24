@@ -415,26 +415,27 @@ void graphics_draw_circ(pt_coord m, uint16_t r, color_code c) {
 
 //writes text in a "box" who's top left corner is pt_coord a
 //and bottom right corner is pt_coord b
-void graphics_write_text(char *x, pt_coord a, pt_coord b, color_code c, color_code fill) {
+void graphics_write_text(char *x, pt_coord a, pt_coord b, color_code c, color_code fill, uint8_t size) {
   uint16_t start_pos = a.y;
   uint16_t str_ind = 0;
   char t;
   while (x[str_ind] != '\0') {
     //check if end of box is reached
     if (a.y >= b.y) {
-      if (a.x >= b.x) {
-        return;
-      }
-      a.x += TEXT_HEIGHT;
+      a.x += TEXT_HEIGHT * size;
       a.y = start_pos;
     }
     
     //line feed
     if (x[str_ind] == '\n') {
-      a.x += TEXT_HEIGHT;
+      a.x += TEXT_HEIGHT * size;
       a.y = start_pos;
       str_ind++;
       continue;
+    }
+    
+    if (a.x >= b.x) {
+      return;
     }
     
     //copy character from string and change to font index
@@ -451,13 +452,15 @@ void graphics_write_text(char *x, pt_coord a, pt_coord b, color_code c, color_co
     for (uint8_t j = 0; j < TEXT_WIDTH; j++) {
       for (uint8_t i = 0; i < TEXT_HEIGHT; i++) {
         if (ch[j] & (1 << i))
-          lcd_set_pixel(a, c);
+          //lcd_set_pixel(a, c);
+          graphics_draw_rect(a, size, size, c);
         else
-          lcd_set_pixel(a, fill);
-        a.x++;
+          //lcd_set_pixel(a, fill);
+          graphics_draw_rect(a, size, size, fill);
+        a.x += size;
       }
-      a.y++;
-      a.x -= TEXT_HEIGHT;
+      a.y += size;
+      a.x -= TEXT_HEIGHT * size;
     }
     str_ind++;
   }
