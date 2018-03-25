@@ -13,7 +13,7 @@ ser = serial.Serial('/dev/ttyACM0',9600)
 while not ser.readline():
     pass
 
-for i in range(10):
+while(True):
     print('loop: {}'.format(i))
     page = requests.get(endpntURL)
     ticker = eval(page.text)
