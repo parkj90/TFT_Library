@@ -1,30 +1,26 @@
 import requests
 import time
 import serial
-from lxml import html
 import dateutil.parser
 
 pair = 'ETH-USD'
-endpntURL = 'https://api.gdax.com/products/{}/ticker'.format(pair)
+endpointURL = 'https://api.gdax.com/products/{}/ticker'.format(pair)
 
 ser = serial.Serial('/dev/ttyACM0',9600)
 
 #wait for the arduino to respond
-while not ser.readline():
-    pass
+print(ser.readline())
 
-while(True):
-    print('loop: {}'.format(i))
-    page = requests.get(endpntURL)
-    ticker = eval(page.text)
+while True:
+    page = requests.get(endpointURL)
+    ticker = page.json()
 
     price = float(ticker['price'])
-    datetime = str(dateutil.parser.parse(ticker['time']).astimezone())
-    date = datetime[:datetime.index(' ')]
-    time_pst = datetime[datetime.index(' ') + 1:datetime.index('.')]
-    
+    localDateTime= dateutil.parser.parse(ticker['time']).astimezone()
+    date = localDateTime.strftime("%x")
+    localTime = localDateTime.strftime("%I:%M:%S %p")
 
-    print("{},{:.2f},{},{}\x00".format(pair,price,time_pst,date))
-    ser.write(bytes("{},{:.2f},{},{}\x00".format(pair,price,time_pst,date), 'utf-8'))
+    print("{},{:.2f},{},{}".format(pair, price, localTime, date))
+    ser.write(bytes("{},{:.2f},{},{}\x00".format(pair,price,localTime,date), 'utf-8'))
 
     time.sleep(5)
