@@ -1,9 +1,15 @@
+import sys
 import requests
 import time
 import serial
 import dateutil.parser
 
-pair = 'ETH-USD'
+if len(sys.argv) < 2:
+    print("Usage: {} pair".format(sys.argv[0]))
+    exit()
+
+#sample_pair = 'ETH-USD'
+pair = sys.argv[1]
 endpointURL = 'https://api.gdax.com/products/{}/ticker'.format(pair)
 
 ser = serial.Serial('/dev/ttyACM0',9600)
